@@ -169,8 +169,10 @@ public func !== (lhs: AnyObject?, rhs: AnyObject?) -> Bool {
 /// Instances of conforming types can be compared for value equality
 /// using operators `==` and `!=`.
 ///
-/// When adopting `Equatable`, only the `==` operator is required to be
-/// implemented.  The standard library provides an implementation for `!=`.
+/// When adopting `Equatable`, only one of the two are required:
+/// 1. The `==` operator defined outside the type definition.
+/// 2. `isEqual` function defined inside the type definition.
+/// The standard library provides an implementation for `!=`.
 public protocol Equatable {
   /// Return true if `lhs` is equal to `rhs`.
   ///
@@ -192,8 +194,26 @@ public protocol Equatable {
   ///
   /// **Inequality is the inverse of equality**, i.e. `!(x == y)` iff
   /// `x != y`.
+  /// `==` should be defined outside of type defintion.
   @warn_unused_result
   func == (lhs: Self, rhs: Self) -> Bool
+    
+  /// Shortcut for defining `==` function inside type definition.
+  @warn_unused_result
+  func isEqual(to:Self) -> Bool
+}
+
+/// Default `isEqual` function to satisfy other types only definiting
+/// `==` for equality.
+public extension Equatable{
+    func isEqual(to:Self) -> Bool{
+        return self == to
+    }
+}
+
+@warn_unused_result
+public func == <T : Equatable>(lhs: T, rhs: T) -> Bool {
+    return lhs.isEqual(rhs)
 }
 
 @warn_unused_result
